@@ -1,0 +1,24 @@
+{
+  "name": "INVODEX",
+  "short_name": "INVODEX",
+  "description": "INVODEX v5.0 - The Cognitive Runtime. Powered by Google Gemini 2.5 Flash. Designed for B2B environments, autonomous workflow execution, and omnichannel gateways.",
+  "theme_color": "#FF7A00",
+  "background_color": "#050505",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2621/2621040.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2621/2621040.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "requestFramePermissions": []
+}
