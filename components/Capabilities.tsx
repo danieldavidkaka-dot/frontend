@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../utils/i18n';
-import { Terminal, Shield, Zap, Workflow, Database, Globe, Mail, BrainCircuit } from 'lucide-react';
+import { Terminal, Shield, Zap, Workflow, Database, Globe, Mail, BrainCircuit, Cpu, Moon, Headphones } from 'lucide-react';
 import { Card } from './ui/Card';
 
 const Capabilities: React.FC = () => {
@@ -9,12 +9,13 @@ const Capabilities: React.FC = () => {
 
   const features = [
     { icon: <Database className="w-6 h-6" />, title: t.capabilities.items[0].title, desc: t.capabilities.items[0].desc, colSpan: 'md:col-span-2 lg:col-span-2', rowSpan: 'row-span-2', highlight: true, color: 'primary' },
-    { icon: <BrainCircuit className="w-6 h-6" />, title: t.capabilities.items[1].title, desc: t.capabilities.items[1].desc, colSpan: 'col-span-1', rowSpan: 'row-span-1', color: 'accent' },
-    { icon: <Workflow className="w-6 h-6" />, title: t.capabilities.items[2].title, desc: t.capabilities.items[2].desc, colSpan: 'col-span-1', rowSpan: 'row-span-1', color: 'gold' },
-    { icon: <Terminal className="w-6 h-6" />, title: t.capabilities.items[3].title, desc: t.capabilities.items[3].desc, colSpan: 'md:col-span-2 lg:col-span-2', rowSpan: 'row-span-1', color: 'cobalt' },
-    { icon: <Shield className="w-6 h-6" />, title: t.capabilities.items[4].title, desc: t.capabilities.items[4].desc, colSpan: 'col-span-1', rowSpan: 'row-span-1', color: 'primary' },
-    { icon: <Zap className="w-6 h-6" />, title: t.capabilities.items[5].title, desc: t.capabilities.items[5].desc, colSpan: 'col-span-1', rowSpan: 'row-span-1', color: 'accent' },
+    { icon: <Moon className="w-6 h-6" />, title: t.capabilities.items[1].title, desc: t.capabilities.items[1].desc, colSpan: 'col-span-1', rowSpan: 'row-span-1', color: 'accent' },
+    { icon: <Cpu className="w-6 h-6" />, title: t.capabilities.items[2].title, desc: t.capabilities.items[2].desc, colSpan: 'col-span-1', rowSpan: 'row-span-1', color: 'gold' },
+    { icon: <BrainCircuit className="w-6 h-6" />, title: t.capabilities.items[3].title, desc: t.capabilities.items[3].desc, colSpan: 'md:col-span-2 lg:col-span-2', rowSpan: 'row-span-1', color: 'cobalt' },
+    { icon: <Terminal className="w-6 h-6" />, title: t.capabilities.items[4].title, desc: t.capabilities.items[4].desc, colSpan: 'col-span-1', rowSpan: 'row-span-1', color: 'primary' },
+    { icon: <Shield className="w-6 h-6" />, title: t.capabilities.items[5].title, desc: t.capabilities.items[5].desc, colSpan: 'col-span-1', rowSpan: 'row-span-1', color: 'accent' },
     { icon: <Globe className="w-6 h-6" />, title: t.capabilities.items[6].title, desc: t.capabilities.items[6].desc, colSpan: 'md:col-span-2 lg:col-span-2', rowSpan: 'row-span-1', color: 'gold' },
+    { icon: <Headphones className="w-6 h-6" />, title: t.capabilities.items[7].title, desc: t.capabilities.items[7].desc, colSpan: 'md:col-span-2 lg:col-span-2', rowSpan: 'row-span-1', color: 'cobalt' },
   ];
 
   const getColorClasses = (color: string, isHover: boolean = false) => {

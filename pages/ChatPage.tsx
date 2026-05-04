@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Terminal, Cpu, User, MoreHorizontal, Settings, Plus, MessageSquare, ArrowLeft, Copy, Check, Trash2, Menu, X, Paperclip, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -12,6 +12,28 @@ interface Message {
   content: string;
   timestamp: Date;
 }
+
+// 🧬 Genera un ID de sesión único y persistente para este navegador.
+// Esto permite que la memoria de OctoArch mantenga el contexto entre mensajes.
+const getOrCreateSessionId = (): string => {
+  const STORAGE_KEY = 'octoarch_chat_session_id';
+  let sessionId = localStorage.getItem(STORAGE_KEY);
+  if (!sessionId) {
+    sessionId = `web_chat_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    localStorage.setItem(STORAGE_KEY, sessionId);
+  }
+  return sessionId;
+};
+
+// 📎 Convierte un archivo a Base64 para enviarlo al backend
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
 
 const ChatPage: React.FC = () => {
   const { t } = useLanguage();
@@ -31,6 +53,7 @@ const ChatPage: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const sessionIdRef = useRef<string>(getOrCreateSessionId());
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -43,6 +66,12 @@ const ChatPage: React.FC = () => {
   };
 
   const handleClearChat = () => {
+    // Generar nueva sesión al limpiar el chat para resetear la memoria
+    const STORAGE_KEY = 'octoarch_chat_session_id';
+    const newSessionId = `web_chat_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    localStorage.setItem(STORAGE_KEY, newSessionId);
+    sessionIdRef.current = newSessionId;
+
     setMessages([{
       id: Date.now().toString(),
       role: 'system',
@@ -81,13 +110,16 @@ const ChatPage: React.FC = () => {
     }
   };
 
-  const handleSend = () => {
-    if (!input.trim() && attachedFiles.length === 0) return;
+  const handleSend = useCallback(async () => {
+    if ((!input.trim() && attachedFiles.length === 0) || isTyping) return;
+
+    const currentInput = input;
+    const currentFiles = [...attachedFiles];
 
     const newUserMsg: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: input + (attachedFiles.length > 0 ? `\n\n[Attached ${attachedFiles.length} file(s)]` : ''),
+      content: currentInput + (currentFiles.length > 0 ? `\n\n📎 [${currentFiles.length} archivo(s) adjunto(s): ${currentFiles.map(f => f.name).join(', ')}]` : ''),
       timestamp: new Date()
     };
 
@@ -102,18 +134,61 @@ const ChatPage: React.FC = () => {
       textarea.style.height = 'auto';
     }
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse: Message = {
+    // 🚀 CONEXIÓN REAL AL BACKEND DE OCTOARCH
+    try {
+      // Preparar el body para el endpoint POST /api/chat
+      const body: Record<string, any> = {
+        text: currentInput,
+        sessionId: sessionIdRef.current,
+        clientId: sessionIdRef.current,
+      };
+
+      // 📎 Si hay archivos adjuntos, convertir el primero a Base64
+      // El backend espera 'imageBase64' con formato data:mimetype;base64,...
+      if (currentFiles.length > 0) {
+        const base64Data = await fileToBase64(currentFiles[0]);
+        body.imageBase64 = base64Data;
+      }
+
+      // 🌐 Llamada al Gateway Omnicanal de OctoArch
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error del servidor: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success && data.response) {
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: data.response,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, aiResponse]);
+      } else {
+        throw new Error(data.error || 'Respuesta inválida del servidor');
+      }
+
+    } catch (error: any) {
+      console.error('❌ Error conectando con OctoArch:', error);
+      
+      const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: t.chat.processing_msg.replace('{0}', newUserMsg.content),
+        role: 'system',
+        content: `⚠️ No se pudo conectar con el núcleo de OctoArch. ${error.message || 'Verifica que el servidor esté activo.'}`,
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, aiResponse]);
+      setMessages(prev => [...prev, errorMsg]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
-  };
+    }
+  }, [input, attachedFiles, isTyping]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -233,13 +308,13 @@ const ChatPage: React.FC = () => {
                   
                   <div className={`relative max-w-[80%] rounded-xl p-4 ${
                     msg.role === 'user' 
-                      ? 'bg-muted text-foreground' 
+                      ? 'bg-primary/15 text-foreground border border-primary/20' 
                       : msg.role === 'system'
-                        ? 'bg-transparent border border-border text-muted-foreground text-sm'
+                        ? 'bg-muted/50 border border-border text-foreground/70 text-sm'
                         : 'bg-card border border-border text-foreground shadow-sm'
                   }`}>
                     {msg.role === 'assistant' || msg.role === 'system' ? (
-                      <div className="text-sm leading-relaxed whitespace-pre-wrap prose prose-sm max-w-none">
+                      <div className="text-sm leading-relaxed whitespace-pre-wrap prose prose-sm prose-invert max-w-none prose-p:text-foreground prose-strong:text-foreground prose-headings:text-foreground prose-a:text-accent prose-code:text-accent prose-pre:bg-muted prose-pre:text-foreground">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                           {msg.content}
                         </ReactMarkdown>
@@ -315,7 +390,7 @@ const ChatPage: React.FC = () => {
                 onChange={handleFileChange} 
                 className="hidden" 
                 multiple 
-                accept=".pdf,.png,.jpg,.jpeg,.csv,.xlsx"
+                accept=".pdf,.png,.jpg,.jpeg,.csv,.xlsx,.docx,.txt,.json"
               />
               <button
                 onClick={() => fileInputRef.current?.click()}

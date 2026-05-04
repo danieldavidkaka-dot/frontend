@@ -12,12 +12,22 @@ import { AnimatePresence } from 'framer-motion';
 
 const App: React.FC = () => {
   const { t } = useLanguage();
-  const [showPreloader, setShowPreloader] = useState(true);
+  
+  // 🎬 Solo mostramos el video introductorio en la PRIMERA visita de la sesión.
+  // Al navegar a /chat y volver a /, no se repite. Cerrar la pestaña lo resetea.
+  const [showPreloader, setShowPreloader] = useState(() => {
+    return !sessionStorage.getItem('invodex_preloader_shown');
+  });
+
+  const handlePreloaderComplete = () => {
+    sessionStorage.setItem('invodex_preloader_shown', 'true');
+    setShowPreloader(false);
+  };
 
   return (
     <main className="relative min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
       <AnimatePresence>
-        {showPreloader && <Preloader onComplete={() => setShowPreloader(false)} />}
+        {showPreloader && <Preloader onComplete={handlePreloaderComplete} />}
       </AnimatePresence>
       
       {!showPreloader && (

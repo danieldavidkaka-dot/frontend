@@ -120,7 +120,7 @@ const ConsolePage: React.FC = () => {
               <Terminal className="w-4 h-4 text-primary" />
               <span className="truncate">{t.console?.title || 'Agent Console'}</span>
             </Link>
-            <Link to="/" className="w-full text-left px-3 py-2 rounded-md hover:bg-secondary-foreground/10 text-sm text-secondary-foreground/70 hover:text-secondary-foreground flex items-center gap-2 transition-colors mt-1">
+            <Link to="/chat" className="w-full text-left px-3 py-2 rounded-md hover:bg-secondary-foreground/10 text-sm text-secondary-foreground/70 hover:text-secondary-foreground flex items-center gap-2 transition-colors mt-1">
               <MessageSquare className="w-4 h-4" />
               <span className="truncate">{t.chat?.active_session || 'ERP Chat'}</span>
             </Link>

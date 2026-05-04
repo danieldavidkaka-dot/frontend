@@ -1,1 +1,59 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+/* 🎨 Chat Markdown Readability - Dark Mode Overrides */
+.dark .prose {
+  --tw-prose-body: hsl(210 40% 93%);
+  --tw-prose-headings: hsl(210 40% 98%);
+  --tw-prose-links: hsl(189 100% 55%);
+  --tw-prose-bold: hsl(210 40% 98%);
+  --tw-prose-counters: hsl(215 20% 65%);
+  --tw-prose-bullets: hsl(215 20% 65%);
+  --tw-prose-hr: hsl(223 63% 25%);
+  --tw-prose-quotes: hsl(210 40% 85%);
+  --tw-prose-quote-borders: hsl(27 90% 52%);
+  --tw-prose-captions: hsl(215 20% 65%);
+  --tw-prose-code: hsl(189 100% 60%);
+  --tw-prose-pre-code: hsl(210 40% 90%);
+  --tw-prose-pre-bg: hsl(223 63% 12%);
+  --tw-prose-th-borders: hsl(223 63% 30%);
+  --tw-prose-td-borders: hsl(223 63% 22%);
+}
+
+/* Ensure inline code blocks stand out */
+.dark .prose code:not(pre code) {
+  background-color: hsl(223 63% 18%);
+  border: 1px solid hsl(223 63% 28%);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.85em;
+  color: hsl(189 100% 60%);
+}
+
+/* Ensure pre/code blocks are readable */
+.dark .prose pre {
+  background-color: hsl(223 63% 10%) !important;
+  border: 1px solid hsl(223 63% 25%);
+  border-radius: 0.5rem;
+}
+
+/* Links within chat should be visible */
+.dark .prose a {
+  color: hsl(189 100% 55%);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.dark .prose a:hover {
+  color: hsl(189 100% 70%);
+}
+
+/* Table readability */
+.dark .prose table {
+  border-color: hsl(223 63% 25%);
+}
+.dark .prose th {
+  color: hsl(210 40% 98%);
+  border-bottom-color: hsl(223 63% 30%);
+}
+.dark .prose td {
+  border-bottom-color: hsl(223 63% 22%);
+}
